@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Auth</title>
+</head>
+<body>
+    <h1>Spotify OAuth 2.0 Authentication</h1>
+    <button id="login-button">Login to Spotify</button>
+
+    <script>
+        const clientId = 'b7b1b4df41164101833d4da6d993bef1';
+        const redirectUri = 'http://localhost:3000/emotions';
+        const authEndpoint = 'https://accounts.spotify.com/authorize';
+        const scopes = [
+            'user-read-private',
+            'user-read-email'
+        ];
+
+        document.getElementById('login-button').addEventListener('click', () => {
+            const authUrl = `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
+            window.location = authUrl;
+        });
+    </script>
+</body>
+</html>

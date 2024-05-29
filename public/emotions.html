@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Emotion-Based Recommendations</title>
+    <style>
+        #profile-info {
+            display: none;
+            margin-top: 10px;
+        }
+        .track {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .track img {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Spotify Emotion-Based Recommendations</h1>
+    <div id="profile-info"></div>
+
+    <h2>Select Your Mood</h2>
+    <button class="mood-button" data-mood="happy">Happy</button>
+    <button class="mood-button" data-mood="neutral">Neutral</button>
+    <button class="mood-button" data-mood="sad">Sad</button>
+
+    <div id="recommendations"></div>
+
+    <script>
+        function getHashParams() {
+            const hashParams = {};
+            let e, r = /([^&;=]+)=?([^&;]*)/g,
+                q = window.location.hash.substring(1);
+            while ( e = r.exec(q)) {
+               hashParams[e[1]] = decodeURIComponent(e[2]);
+            }
+            return hashParams;
+        }
+
+        const params = getHashParams();
+        const accessToken = params.access_token;
+        if (accessToken) {
+            localStorage.setItem('access_token', accessToken);
+        }
+
+        function fetchProfileInfo() {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                fetch('https://api.spotify.com/v1/me', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById('profile-info').innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    console.error('Error fetching profile:', error);
+                });
+            } else {
+                console.log('No access token found');
+            }
+        }
+
+        fetchProfileInfo();
+
+        document.querySelectorAll('.mood-button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const mood = event.target.getAttribute('data-mood');
+                fetchRecommendations(mood);
+            });
+        });
+
+        function fetchRecommendations(mood) {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                let genre;
+                if (mood === 'happy') {
+                    genre = 'pop';
+                } else if (mood === 'neutral') {
+                    genre = 'chill';
+                } else if (mood === 'sad') {
+                    genre = 'acoustic'; // 적절한 장르로 수정
+                }
+
+                fetch(`https://api.spotify.com/v1/recommendations?seed_genres=${genre}&limit=1`, { // 한 곡 추천
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    displayRecommendations(data.tracks);
+                })
+                .catch(error => {
+                    console.error('Error fetching recommendations:', error);
+                });
+            } else {
+                console.log('No access token found');
+            }
+        }
+
+        function displayRecommendations(tracks) {
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.innerHTML = '';
+
+            tracks.forEach(track => {
+                const trackElement = document.createElement('div');
+                trackElement.className = 'track';
+
+                const albumCover = document.createElement('img');
+                albumCover.src = track.album.images[0]?.url || '';
+                albumCover.alt = `${track.name} album cover`;
+                albumCover.width = 50;
+                albumCover.height = 50;
+
+                const trackInfo = document.createElement('div');
+                trackInfo.innerText = `${track.name} by ${track.artists.map(artist => artist.name).join(', ')}`;
+
+                trackElement.appendChild(albumCover);
+                trackElement.appendChild(trackInfo);
+
+                recommendationsDiv.appendChild(trackElement);
+            });
+        }
+    </script>
+</body>
+</html>
