@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Emotion-Based Recommendations</title>
+    <title>감정에 따른 노래 추천</title>
     <style>
         #profile-info {
             display: none;
             margin-top: 10px;
+        }
+        .emotion {
+            display: inline-block;
+            margin: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .emotion img {
+            width: 150px;
+            height: 150px;
         }
         .track {
             display: flex;
@@ -20,13 +30,22 @@
     </style>
 </head>
 <body>
-    <h1>Spotify Emotion-Based Recommendations</h1>
+    <h1>감정에 따른 노래 추천</h1>
     <div id="profile-info"></div>
 
-    <h2>Select Your Mood</h2>
-    <button class="mood-button" data-mood="happy">Happy</button>
-    <button class="mood-button" data-mood="neutral">Neutral</button>
-    <button class="mood-button" data-mood="sad">Sad</button>
+    <h2>감정에 맞는 감자를 골라보세요!</h2>
+    <div class="emotion" data-mood="happy">
+        <img src="행복감자.png" alt="Happy 감자">
+        <div>Happy</div>
+    </div>
+    <div class="emotion" data-mood="neutral">
+        <img src="무념무상 감자.png" alt="Neutral 감자">
+        <div>Neutral</div>
+    </div>
+    <div class="emotion" data-mood="sad">
+        <img src="속상감자.png" alt="Sad 감자">
+        <div>Sad</div>
+    </div>
 
     <div id="recommendations"></div>
 
@@ -70,9 +89,9 @@
 
         fetchProfileInfo();
 
-        document.querySelectorAll('.mood-button').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const mood = event.target.getAttribute('data-mood');
+        document.querySelectorAll('.emotion').forEach(emotion => {
+            emotion.addEventListener('click', (event) => {
+                const mood = event.currentTarget.getAttribute('data-mood');
                 fetchRecommendations(mood);
             });
         });
@@ -86,10 +105,10 @@
                 } else if (mood === 'neutral') {
                     genre = 'chill';
                 } else if (mood === 'sad') {
-                    genre = 'acoustic'; // 적절한 장르로 수정
+                    genre = 'r-n-b'; // 적절한 장르로 수정
                 }
 
-                fetch(`https://api.spotify.com/v1/recommendations?seed_genres=${genre}&limit=1`, { // 한 곡 추천
+                fetch(`https://api.spotify.com/v1/recommendations?seed_genres=${genre}&limit=1&market=US&min_popularity=0`, {
                     headers: {
                         'Authorization': 'Bearer ' + token
                     }
@@ -118,8 +137,8 @@
                 const albumCover = document.createElement('img');
                 albumCover.src = track.album.images[0]?.url || '';
                 albumCover.alt = `${track.name} album cover`;
-                albumCover.width = 50;
-                albumCover.height = 50;
+                albumCover.width = 300;
+                albumCover.height = 300;
 
                 const trackInfo = document.createElement('div');
                 trackInfo.innerText = `${track.name} by ${track.artists.map(artist => artist.name).join(', ')}`;
