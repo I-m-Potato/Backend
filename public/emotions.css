@@ -1,0 +1,22 @@
+#profile-info {
+    display: none;
+    margin-top: 10px;
+}
+.emotion {
+    display: inline-block;
+    margin: 10px;
+    cursor: pointer;
+    text-align: center;
+}
+.emotion img {
+    width: 150px;
+    height: 150px;
+}
+.track {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+.track img {
+    margin-right: 10px;
+}
